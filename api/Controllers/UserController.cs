@@ -1,6 +1,8 @@
-﻿using dp.api.Models;
+﻿using dp.api.Filters;
+using dp.api.Models;
 using dp.api.Services;
 using dp.business.Enums;
+using dp.business.Helpers;
 using dp.business.Models;
 using dp.data;
 using dp.data.Interfaces;
@@ -10,8 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using dp.business.Helpers;
-using dp.api.Filters;
 
 namespace dp.api.Controllers
 {

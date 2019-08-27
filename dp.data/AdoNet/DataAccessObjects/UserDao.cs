@@ -1,7 +1,6 @@
 ﻿using dp.business.Enums;
-using dp.data.AdoNet.SqlExecution;
-using dp.data.Interfaces;
 using dp.business.Models;
+using dp.data.AdoNet.SqlExecution;
 using System;
 using System.Collections.Generic;
 using System.Data;
