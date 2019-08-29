@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
+using System.IO;
 using System.Text;
 
 namespace dp.api
@@ -80,6 +81,8 @@ namespace dp.api
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "DP API", Version = "V1" });
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "dp.api.xml");
+                c.IncludeXmlComments(filePath);
             });
 
         }
