@@ -42,7 +42,7 @@ namespace dp.data.AdoNet.DataAccessObjects
 
         }
 
-        public async Task<int?> CreateUser(UserCreate user)
+        public async Task<int?> CreateUser(UserCreateRequest user)
         {
 
             SqlQuery proc = new SqlQuery(@" 

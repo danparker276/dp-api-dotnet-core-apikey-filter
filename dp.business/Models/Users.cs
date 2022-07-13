@@ -15,7 +15,7 @@ namespace dp.business.Models
     {
         public string Token { get; set; }
     }
-    public class UserCreate { 
+    public class UserCreateRequest { 
         public string Email { get; set; }
         public string Password { get; set; }
         public UserType Role { get; set; }

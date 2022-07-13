@@ -1,17 +1,12 @@
-﻿using dp.api.Filters;
-using dp.api.Models;
+﻿using dp.api.Models;
 using dp.api.Services;
+using dp.api.Authorization;
 using dp.business.Enums;
 using dp.business.Helpers;
 using dp.business.Models;
 using dp.data;
 using dp.data.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace dp.api.Controllers
 {
@@ -50,7 +45,7 @@ namespace dp.api.Controllers
             return Ok(user);
         }
 
-        [Authorize(Roles = Role.Admin)]
+        [Authorize(Role.Admin)]
         [HttpGet("getall")]
         public async Task<IActionResult> GetAll()
         {
@@ -68,9 +63,9 @@ namespace dp.api.Controllers
         /// <param name="user"></param>
         /// <returns>The New UserId or nothing if user exists</returns>
 
-        [Authorize(Roles = Role.Admin)]
+        [Authorize(Role.Admin)]
         [HttpPost("createuser")]
-        public async Task<IActionResult> CreateUser([FromBody]UserCreate user)
+        public async Task<IActionResult> CreateUser([FromBody]UserCreateRequest user)
         {
             
             if (!Utils.IsValidEmail(user.Email))
@@ -92,41 +87,15 @@ namespace dp.api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            // only allow admins to access other user records
-            var currentUserId = int.Parse(User.Identity.Name);
-            if (id != currentUserId && !User.IsInRole(Role.Admin))
-            {
-                return Forbid();
-            }
-            //No reason to go through a service on a simple looking
-            User user =  await AdoNetDao.UserDao.GetUserInfo(id);
-       
-            if (user == null)
-            {
-                return NotFound();
-            }
+            // only admins can access other user records
+            var currentUser = (ClaimedUser)HttpContext.Items["User"];
+            if (id != currentUser.Id && currentUser.Role != Role.Admin)
+                return Unauthorized(new { message = "Unauthorized" });
+
+            var user = await _userService.GetById(id);
             return Ok(user);
         }
 
-        /// <summary>
-        /// Here you can use an API key in the header x-api-key for auth and it will give you the userId
-        /// </summary>
-        /// <returns></returns>
-        [ApiKeyAuthAtrribute]
-        [HttpGet("GetInfoByApiKey")]
-        public async Task<IActionResult> GetInfoByApiKey()
-        {
-            //You can change this to your group or teamId or pass back an object.
-            User user = HttpContext.Items["user"] as User;
-            if (user.IsActive == false)
-            {
-                //Add additional Validation here
-                return Unauthorized("User is not Active");
-            }
-            //Do more items here which will be async
-
-            return Ok("User Id:" + user.UserId);
-        }
 
     }
 }

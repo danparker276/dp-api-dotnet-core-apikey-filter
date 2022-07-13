@@ -7,19 +7,8 @@ namespace dp.api.Controllers
     {
         protected ClaimedUser GetClaimedUser()
         {
-            bool isAdmin = User.IsInRole("Admin");
-            //use something like ClaimTypes.NameIdentifier to put a value somewhere
-            //example
-           /* int? tenantId = int.TryParse(this.User.FindFirstValue(ClaimTypes.NameIdentifier), out int parsedTenantId)
-                ? parsedTenantId
-                : new int?();*/
+            return (ClaimedUser)HttpContext.Items["User"];
 
-            var currentUserId = int.Parse(User.Identity.Name);
-            return new ClaimedUser
-            {
-                Id = currentUserId,
-                IsAdmin = isAdmin
-            };
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.Security.Claims;
-
-
-namespace dp.business.Models
+﻿namespace dp.business.Models
 {
     public class AccessToken
     {

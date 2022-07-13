@@ -70,7 +70,4 @@
     <PostDeploy Include="Scripts\Post-Deployment\Script.PostDeployment1.sql" />
     <None Include="Scripts\Post-Deployment\UsersDp.sql" />
   </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="dp.database.refactorlog" />
-  </ItemGroup>
 </Project>

@@ -1,20 +1,63 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
+﻿using System.Text.Json.Serialization;
+using dp.api.Authorization;
+using dp.api.Helpers;
+using dp.api.Services;
+using Microsoft.Extensions.Options;
 
-namespace dp.api
+
+//Auth is taken a lot from this blog post below, but I added on to this a bit
+//https://jasonwatmore.com/post/2022/02/18/net-6-role-based-authorization-tutorial-with-example-api
+
+var builder = WebApplication.CreateBuilder(args);
+
+// add services to DI container
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+    var services = builder.Services;
+    var env = builder.Environment;
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
+    //services.AddDbContext<DataContext>();
+    services.AddCors();
+    services.AddHealthChecks();
+    services.AddControllers().AddJsonOptions(x =>
+    {
+        // serialize enums as strings in api responses (e.g. Role)
+        x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+    // configure strongly typed settings object
+    services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
+    var connectionString = builder.Configuration.GetConnectionString("dpDbConnectionString");
+
+    // configure DI for application services
+    services.AddScoped<IJwtUtils, JwtUtils>();
+    //services.AddScoped<IUserService, UserService>();
+    services.AddScoped<IUserService>(provider =>
+    {
+        var appSettingsResolved = provider.GetService<IOptions<AppSettings>>();
+        return new UserService(connectionString, appSettingsResolved);
+    });
 }
+
+var app = builder.Build();
+
+// configure HTTP request pipeline
+{
+    // global cors policy
+    app.UseCors(x => x
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
+
+    // global error handler
+    //app.UseMiddleware<ErrorHandlerMiddleware>();
+
+    // custom jwt auth middleware
+    app.UseMiddleware<JwtMiddleware>();
+    app.MapHealthChecks("/health");
+    app.MapControllers();
+
+    //TODO add swagger
+}
+
+
+app.Run();

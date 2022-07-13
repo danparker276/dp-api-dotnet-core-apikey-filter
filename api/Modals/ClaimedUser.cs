@@ -1,10 +1,16 @@
+using System.Text.Json.Serialization;
+
 namespace dp.api.Models
 {
-    public struct ClaimedUser
+    public class ClaimedUser
     {
         public int Id { get; set; }
-        public bool IsAdmin { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Username { get; set; }
+        public Role Role { get; set; }
 
-        //add as much here to the claims as you want
+        [JsonIgnore]
+        public string PasswordHash { get; set; }
     }
 }

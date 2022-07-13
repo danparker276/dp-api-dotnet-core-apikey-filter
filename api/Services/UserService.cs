@@ -3,7 +3,6 @@ using dp.business.Enums;
 using dp.business.Models;
 using dp.data;
 using dp.data.Interfaces;
-using dp.business.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -18,6 +17,7 @@ namespace dp.api.Services
     public interface IUserService
     {
         Task<AccessToken> Authenticate(string email, string password, UserType userType);
+        Task<User> GetById(int id);
 
     }
 
@@ -67,6 +67,9 @@ namespace dp.api.Services
             return ur;
         }
 
-
+        public async Task<User> GetById(int id)
+        {
+            return await AdoDao.UserDao.GetUserInfo(id);
+        }
     }
 }
