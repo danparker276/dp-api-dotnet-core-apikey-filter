@@ -23,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
         // serialize enums as strings in api responses (e.g. Role)
         x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
     // configure strongly typed settings object
     services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
@@ -49,14 +51,18 @@ var app = builder.Build();
         .AllowAnyHeader());
 
     // global error handler
-    //app.UseMiddleware<ErrorHandlerMiddleware>();
+    app.UseMiddleware<ErrorHandlerMiddleware>();
 
     // custom jwt auth middleware
     app.UseMiddleware<JwtMiddleware>();
     app.MapHealthChecks("/health");
     app.MapControllers();
 
-    //TODO add swagger
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 }
 
 
