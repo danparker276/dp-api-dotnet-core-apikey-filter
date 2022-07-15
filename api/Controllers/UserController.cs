@@ -6,6 +6,7 @@ using dp.business.Models;
 using dp.data;
 using dp.data.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using dp.api.Filters;
 
 namespace dp.api.Controllers
 {
@@ -13,7 +14,7 @@ namespace dp.api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
         private IUserService _userService;
         private string _dpDbConnectionString;
@@ -88,12 +89,32 @@ namespace dp.api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             // only admins can access other user records
-            var currentUser = (User)HttpContext.Items["User"];
+            var currentUser = GetClaimedUser();
             if (id != currentUser.UserId && currentUser.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
 
             var user = await _userService.GetById(id);
             return Ok(user);
+        }
+
+        /// <summary>
+        /// Here you can use an API key in the header x-api-key for auth and it will give you the userId
+        /// </summary>
+        /// <returns></returns>
+        [ApiKeyAuthAtrribute]
+        [HttpGet("GetInfoByApiKey")]
+        public async Task<IActionResult> GetInfoByApiKey()
+        {
+            //You can change this to your group or teamId or pass back an object.
+            User user = GetClaimedUser();
+            if (user.IsActive == false)
+            {
+                //Add additional Validation here
+                return Unauthorized("User is not Active");
+            }
+            //Do more items here which will be async
+
+            return Ok("User Id:" + user.UserId);
         }
 
     }
