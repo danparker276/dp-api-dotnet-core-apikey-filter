@@ -1,13 +1,13 @@
-using dp.api.Models;
+using dp.business.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dp.api.Controllers
 {
     public class BaseController : ControllerBase
     {
-        protected ClaimedUser GetClaimedUser()
+        protected User GetClaimedUser()
         {
-            return (ClaimedUser)HttpContext.Items["User"];
+            return (User)HttpContext.Items["User"];
 
         }
     }

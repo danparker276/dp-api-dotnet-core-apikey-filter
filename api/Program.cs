@@ -28,16 +28,13 @@ var builder = WebApplication.CreateBuilder(args);
 
     // configure strongly typed settings object
     services.Configure<AppSettings>(builder.Configuration.GetSection("AppSettings"));
-    var connectionString = builder.Configuration.GetConnectionString("dpDbConnectionString");
+    services.Configure<ConnectionStrings>(builder.Configuration.GetSection("ConnectionStrings"));
 
     // configure DI for application services
     services.AddScoped<IJwtUtils, JwtUtils>();
     //services.AddScoped<IUserService, UserService>();
-    services.AddScoped<IUserService>(provider =>
-    {
-        var appSettingsResolved = provider.GetService<IOptions<AppSettings>>();
-        return new UserService(connectionString, appSettingsResolved);
-    });
+    services.AddScoped<IJwtUtils, JwtUtils>();
+    services.AddScoped<IUserService, UserService>();
 }
 
 var app = builder.Build();

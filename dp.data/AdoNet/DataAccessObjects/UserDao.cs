@@ -13,7 +13,7 @@ namespace dp.data.AdoNet.DataAccessObjects
         public UserDao(string dpDbConnectionString) : base(dpDbConnectionString)
         {
         }
-        public async Task<User> ValidateUser(string email, string password, UserType userTypeId)
+        public async Task<User> ValidateUser(string email, string password, Role userTypeId)
         {
 
             SqlQuery proc = new SqlQuery(@" 
@@ -31,7 +31,7 @@ namespace dp.data.AdoNet.DataAccessObjects
                     return new UserResponse()
                     {
                         UserId = SqlQueryResultParser.GetValue<Int32>(dataReader, "userId"),
-                        Role = (UserType)SqlQueryResultParser.GetValue<Int32>(dataReader, "userTypeId"),
+                        Role = (Role)SqlQueryResultParser.GetValue<Int32>(dataReader, "userTypeId"),
                         IsActive = SqlQueryResultParser.GetValue<Boolean>(dataReader, "isActive")
 
 
@@ -75,7 +75,7 @@ namespace dp.data.AdoNet.DataAccessObjects
                     return new User()
                     {
                         UserId = SqlQueryResultParser.GetValue<Int32>(dataReader, "userId"),
-                        Role = (UserType)SqlQueryResultParser.GetValue<Int32>(dataReader, "userTypeId"),
+                        Role = (Role)SqlQueryResultParser.GetValue<Int32>(dataReader, "userTypeId"),
                         IsActive = SqlQueryResultParser.GetValue<Boolean>(dataReader, "isActive"),
                         Email = SqlQueryResultParser.GetValue<String>(dataReader, "email")
                     };
@@ -112,7 +112,7 @@ namespace dp.data.AdoNet.DataAccessObjects
                         UserId = SqlQueryResultParser.GetValue<Int32>(dataReader, "userId"),
                         Email = SqlQueryResultParser.GetValue<String>(dataReader, "email"),
                         IsActive = SqlQueryResultParser.GetValue<Boolean>(dataReader, "IsActive"),
-                        Role = (UserType)SqlQueryResultParser.GetValue<Int32>(dataReader, "UserTypeId")
+                        Role = (Role)SqlQueryResultParser.GetValue<Int32>(dataReader, "UserTypeId")
                     });
                 }
                 return null;
@@ -135,7 +135,7 @@ namespace dp.data.AdoNet.DataAccessObjects
                     users.Add(new User()
                     {
                         UserId = SqlQueryResultParser.GetValue<Int32>(dataReader, "userId"),
-                        Role = (UserType)SqlQueryResultParser.GetValue<Int32>(dataReader, "userTypeId"),
+                        Role = (Role)SqlQueryResultParser.GetValue<Int32>(dataReader, "userTypeId"),
                         IsActive = SqlQueryResultParser.GetValue<Boolean>(dataReader, "isActive"),
                         Email = SqlQueryResultParser.GetValue<String>(dataReader, "email")
                     });

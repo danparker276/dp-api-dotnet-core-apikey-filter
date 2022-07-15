@@ -1,5 +1,4 @@
-﻿using dp.api.Models;
-using dp.api.Services;
+﻿using dp.api.Services;
 using dp.api.Authorization;
 using dp.business.Enums;
 using dp.business.Helpers;
@@ -25,6 +24,7 @@ namespace dp.api.Controllers
             _userService = userService;
             _dpDbConnectionString = Environment.GetEnvironmentVariable("dpDbConnectionString");
         }
+
         /// <summary>
         /// This main login call to get a token
         /// </summary>
@@ -35,9 +35,9 @@ namespace dp.api.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesDefaultResponseType]
-        public async Task<ActionResult<AccessToken>> Authenticate([FromBody]TokenRequest userParam)
+        public async Task<ActionResult<AccessToken>> Authenticate([FromBody] TokenRequest userParam)
         {
-            AccessToken user = await _userService.Authenticate(userParam.Email, userParam.Password, (UserType)userParam.UserTypeId);
+            AccessToken user = await _userService.Authenticate(userParam.Email, userParam.Password, (Role)userParam.UserTypeId);
 
             if (user == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
@@ -65,18 +65,18 @@ namespace dp.api.Controllers
 
         [Authorize(Role.Admin)]
         [HttpPost("createuser")]
-        public async Task<IActionResult> CreateUser([FromBody]UserCreateRequest user)
+        public async Task<IActionResult> CreateUser([FromBody] UserCreateRequest user)
         {
-            
+
             if (!Utils.IsValidEmail(user.Email))
                 return BadRequest("Valid Email is requried");
             if (String.IsNullOrEmpty(user.Password) || user.Password.Length < 5)
-                return BadRequest("Valid Password is requried"); 
-            int? userId= await AdoNetDao.UserDao.CreateUser(user);
- 
+                return BadRequest("Valid Password is requried");
+            int? userId = await AdoNetDao.UserDao.CreateUser(user);
+
             return Ok(userId);
         }
-        
+
 
         /// <summary>
         /// Get current information about a userId v2
@@ -88,14 +88,13 @@ namespace dp.api.Controllers
         public async Task<IActionResult> GetById(int id)
         {
             // only admins can access other user records
-            var currentUser = (ClaimedUser)HttpContext.Items["User"];
-            if (id != currentUser.Id && currentUser.Role != Role.Admin)
+            var currentUser = (User)HttpContext.Items["User"];
+            if (id != currentUser.UserId && currentUser.Role != Role.Admin)
                 return Unauthorized(new { message = "Unauthorized" });
 
             var user = await _userService.GetById(id);
             return Ok(user);
         }
-
 
     }
 }

@@ -1,41 +1,37 @@
-﻿using dp.api.Helpers;
+﻿using dp.api.Authorization;
+using dp.api.Helpers;
 using dp.business.Enums;
 using dp.business.Models;
 using dp.data;
 using dp.data.Interfaces;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace dp.api.Services
 {
     public interface IUserService
     {
-        Task<AccessToken> Authenticate(string email, string password, UserType userType);
+        Task<AccessToken> Authenticate(string email, string password, Role userType);
         Task<User> GetById(int id);
 
     }
 
     public class UserService : IUserService
     {
-
+        private IJwtUtils _jwtUtils;
         private readonly AppSettings _appSettings;
-        private string _dpDbConnectionString;
-        private IDaoFactory AdoDao => DaoFactories.GetFactory(DataProvider.AdoNet, _dpDbConnectionString);
+        private readonly ConnectionStrings _connectionStrings;
+
+        private IDaoFactory AdoDao => DaoFactories.GetFactory(DataProvider.AdoNet, _connectionStrings.DpDbConnectionString);
 
 
-        public UserService(string dpDbConnectionString, IOptions<AppSettings> appSettings)
+        public UserService(IOptions<AppSettings> appSettings, IOptions<ConnectionStrings> connectionStrings, IJwtUtils jwtUtils)
         {
             _appSettings = appSettings.Value;
-            _dpDbConnectionString = dpDbConnectionString;
+            _connectionStrings = connectionStrings.Value;
+            _jwtUtils = jwtUtils;
         }
 
-        public async Task<AccessToken> Authenticate(string email, string password, UserType userType)
+        public async Task<AccessToken> Authenticate(string email, string password, Role userType)
         {
 
             User user = await AdoDao.UserDao.ValidateUser(email, password, userType);
@@ -44,27 +40,11 @@ namespace dp.api.Services
             if (user == null)
                 return null;
             if (user.IsActive == false)
-                return null;
+                throw new AppException("Username or password is incorrect");
+            var jwtToken = _jwtUtils.GenerateJwtToken(new User() { UserId = user.UserId, Role = user.Role });
+            return new AccessToken() { access_token = jwtToken };
 
-            // authentication successful so generate jwt token
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim(ClaimTypes.Name, user.UserId.ToString()),
-                    new Claim(ClaimTypes.Role, user.Role.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddDays(24),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            AccessToken ur = new AccessToken()
-            {
-                 access_token = tokenHandler.WriteToken(token)
-            };
-            return ur;
+
         }
 
         public async Task<User> GetById(int id)

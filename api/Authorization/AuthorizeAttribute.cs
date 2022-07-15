@@ -2,7 +2,8 @@ namespace dp.api.Authorization;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using dp.api.Models;
+using dp.business.Models;
+using dp.business.Enums;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthorizeAttribute : Attribute, IAuthorizationFilter
@@ -22,8 +23,8 @@ public class AuthorizeAttribute : Attribute, IAuthorizationFilter
             return;
 
         // authorization
-        var user = (ClaimedUser)context.HttpContext.Items["User"];
-        if (user == null || (_roles.Any() && !_roles.Contains(user.Role)))
+        var user = (User)context.HttpContext.Items["UserDb"];
+        if (user == null || (_roles.Any() && !_roles.Contains((Role)user.Role)))
         {
             // not logged in or role not authorized
             context.Result = new JsonResult(new { message = "Unauthorized" }) { StatusCode = StatusCodes.Status401Unauthorized };

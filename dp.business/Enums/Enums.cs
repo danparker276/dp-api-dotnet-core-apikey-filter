@@ -11,7 +11,7 @@ namespace dp.business.Enums
         AdoNet
     }
 
-    public enum UserType
+    public enum Role
     {
         Anon =0,
         User = 1,
