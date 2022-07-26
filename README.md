@@ -1,5 +1,5 @@
 # dp-api-dotnet-core-apikey-filter
-TODO - I will add more docs here. But I have just updated this to not use the asp.net mvc filter anymore as I've taken a new approach with core 6, also shown here, where much of the code is from https://jasonwatmore.com/post/2022/02/18/net-6-role-based-authorization-tutorial-with-example-api 
+TODO - I will add more docs here. But I have just updated to use asp.net core 6 and creates the custom JWT token in a different way. Much of the code is from https://jasonwatmore.com/post/2022/02/18/net-6-role-based-authorization-tutorial-with-example-api He also has some very good UI examples to use with this.
 
 This is a REST API that I use as a starter template. I have a ADO.NET wrapper for my data layer. It's a very light and efficient way to access the DB, as I use Cloud Functions a lot and don't want a heavy ORM. I'll probably make another version with Dapper soon.
 
