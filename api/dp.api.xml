@@ -25,5 +25,11 @@
             <param name="id"></param>
             <returns></returns>
         </member>
+        <member name="M:dp.api.Controllers.UsersController.GetInfoByApiKey">
+            <summary>
+            Here you can use an API key in the header x-api-key for auth and it will give you the userId
+            </summary>
+            <returns></returns>
+        </member>
     </members>
 </doc>
